@@ -25,7 +25,6 @@ ActiveRecord::Schema.define(version: 20170222013252) do
 
   create_table "calendars", force: :cascade do |t|
     t.integer  "user_id",                         limit: 4
-    t.integer  "organization_id",                 limit: 4
     t.string   "name",                            limit: 255
     t.string   "google_calendar_id",              limit: 255
     t.string   "description",                     limit: 255
@@ -135,10 +134,9 @@ ActiveRecord::Schema.define(version: 20170222013252) do
   end
 
   create_table "permissions", force: :cascade do |t|
-    t.string   "permission",           limit: 255
-    t.integer  "user_organization_id", limit: 4
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
+    t.string   "permission", limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
   create_table "places", force: :cascade do |t|

@@ -25,10 +25,10 @@ class User < ActiveRecord::Base
   after_create :create_calendar
   before_create :generate_authentication_token!
 
-  scope :search, ->q{where "email LIKE '%#{q}%'"}
+  scope :search, ->(q){where "email LIKE '%#{q}%'"}
   scope :order_by_email, ->{order email: :asc}
-  scope :with_ids, ->ids{where id: ids}
-  scope :can_invite_to_organization, ->organization_id do
+  scope :with_ids, ->(ids){where id: ids}
+  scope :can_invite_to_organization, ->(organization_id) do
     where NOT_YET_INVITE, organization_id
   end
 
@@ -66,7 +66,7 @@ class User < ActiveRecord::Base
   end
 
   def is_user? user
-    self ==  user
+    self == user
   end
 
   class << self
@@ -79,7 +79,7 @@ class User < ActiveRecord::Base
         user.provider = auth.provider
         user.uid = auth.uid
         user.email = auth.info.email
-        user.password = Devise.friendly_token[0,20]
+        user.password = Devise.friendly_token[0, 20]
       end
       if user.setting.nil?
         user.create_setting timezone_name: ActiveSupport::TimeZone.all.sample.name
@@ -107,6 +107,6 @@ class User < ActiveRecord::Base
 
   private
   def create_calendar
-    self.calendars.create({name: self.name, is_default: true})
+    calendars.create(name: name, is_default: true)
   end
 end

@@ -62,11 +62,11 @@ module Events
 
     def event_exception_pre_nearest parent, exception_time
       events = parent.event_exceptions
-        .follow_pre_nearest(exception_time).order(start_date: :desc)
+               .follow_pre_nearest(exception_time).order(start_date: :desc)
       events.size > 0 ? events.first : parent
     end
 
-    ["delete_all", "delete_all_follow", "delete_only"].each do |action_name|
+    %w(delete_all delete_all_follow delete_only).each do |action_name|
       define_method "#{action_name}?" do
         action_name == @params[:exception_type]
       end

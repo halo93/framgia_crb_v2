@@ -20,7 +20,7 @@ class PlacesController < ApplicationController
     @place.user = current_user
 
     if @place.save
-      redirect_to places_url, success: 'Place was successfully created.'
+      redirect_to places_url, success: "Place was successfully created."
     else
       render :new
     end
@@ -28,7 +28,7 @@ class PlacesController < ApplicationController
 
   def update
     if @place.update(place_params)
-      redirect_to places_url, success: 'Place was successfully updated.'
+      redirect_to places_url, success: "Place was successfully updated."
     else
       render :edit
     end
@@ -36,7 +36,7 @@ class PlacesController < ApplicationController
 
   def destroy
     @place.destroy
-    redirect_to places_url, success: 'Place was successfully destroyed.'
+    redirect_to places_url, success: "Place was successfully destroyed."
   end
 
   private

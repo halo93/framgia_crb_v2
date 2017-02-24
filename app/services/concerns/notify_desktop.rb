@@ -36,9 +36,9 @@ module NotifyDesktop
     end
 
     notify_data = {title: event_title, start: event_start,
-      finish: event_finish, desc: event_desc,
-      attendees: notify_to_attendees.join(", "),
-      from_user: from_user, remind_message: remind_message}
+                   finish: event_finish, desc: event_desc,
+                   attendees: notify_to_attendees.join(", "),
+                   from_user: from_user, remind_message: remind_message}
 
     event.attendees.each do |attendee|
       notify_data[:to_user] = attendee.user_name

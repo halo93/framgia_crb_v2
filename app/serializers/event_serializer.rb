@@ -24,6 +24,10 @@ class EventSerializer < ActiveModel::Serializer
 
   private
   def timezone
-    @timezone ||= object.calendar.owner.setting.timezone rescue 7
+    @timezone ||= begin
+                    object.calendar.owner.setting.timezone
+                  rescue
+                    7
+                  end
   end
 end

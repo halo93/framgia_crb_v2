@@ -36,32 +36,27 @@ class ApplicationController < ActionController::Base
   end
 
   def validate_permission_change_of_calendar calendar
-    unless current_user.permission_make_change?(calendar) ||
-      current_user.permission_manage?(calendar)
-      redirect_to root_path
-    end
+    return if current_user.permission_make_change?(calendar) || current_user.permission_manage?(calendar)
+    redirect_to root_path
   end
 
   def validate_permission_see_detail_of_calendar calendar
-    if !current_user.has_permission?(calendar) ||
-      (current_user.permission_hide_details?(calendar) && !calendar.share_public?)
-      redirect_to root_path
-    end
+    return unless !current_user.has_permission?(calendar) ||
+                  (current_user.permission_hide_details?(calendar) && !calendar.share_public?)
+    redirect_to root_path
   end
 
   def store_location
-    unless (request.path == "/users/sign_in" ||
-      request.path == "/users/sign_up" ||
-      request.path == "/users/password/new" ||
-      request.path == "/users/password/edit" ||
-      request.path == "/users/confirmation" ||
-      request.path == "/users/sign_out" ||
-      request.xhr?)
-        session[:previous_url] = request.fullpath
-    end
+    session[:previous_url] = request.fullpath unless request.path == "/users/sign_in" ||
+                                                     request.path == "/users/sign_up" ||
+                                                     request.path == "/users/password/new" ||
+                                                     request.path == "/users/password/edit" ||
+                                                     request.path == "/users/confirmation" ||
+                                                     request.path == "/users/sign_out" ||
+                                                     request.xhr?
   end
 
-  def after_sign_in_path_for resource
+  def after_sign_in_path_for _resource
     session[:previous_url] || root_path
   end
 

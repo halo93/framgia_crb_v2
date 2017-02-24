@@ -1,5 +1,4 @@
 module GoogleApi
-
   def self.included klass
     klass.extend ModuleMethods
   end
@@ -10,7 +9,7 @@ module GoogleApi
       key = Google::APIClient::PKCS12.load_key(keypath, "notasecret")
 
       @client = Google::APIClient.new({application_name: I18n.t("events.framgia_crb_system"),
-        application_version: "1.0"})
+                                       application_version: "1.0"})
       @client.authorization = Signet::OAuth2::Client.new(
         token_credential_uri: "https://accounts.google.com/o/oauth2/token",
         audience: "https://accounts.google.com/o/oauth2/token",
@@ -18,7 +17,7 @@ module GoogleApi
         issuer: "framgia-crb-system@framgia-crb-system.iam.gserviceaccount.com",
         signing_key: key)
       @client.authorization.fetch_access_token!
-      return @client
+      @client
     end
 
     def g_event_data event

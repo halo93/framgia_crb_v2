@@ -15,8 +15,8 @@ class Event < ActiveRecord::Base
     :repeat_type, :repeat_every, :user_id, :calendar_id, :start_date,
     :finish_date, :start_repeat, :end_repeat, :exception_type, :exception_time,
     :place_id, :name_place, attendees_attributes: [:id, :email, :_destroy, :user_id],
-    repeat_ons_attributes: [:id, :days_of_week_id, :_destroy],
-    notification_events_attributes: [:id, :notification_id, :_destroy]]
+                            repeat_ons_attributes: [:id, :days_of_week_id, :_destroy],
+                            notification_events_attributes: [:id, :notification_id, :_destroy]]
   REPEAT_PARAMS = [:repeat_type, :repeat_every, :start_repeat, :end_repeat,
     :repeat_ons_attributes]
 
@@ -56,47 +56,47 @@ class Event < ActiveRecord::Base
   accepts_nested_attributes_for :notification_events, allow_destroy: true
   accepts_nested_attributes_for :repeat_ons, allow_destroy: true
 
-  scope :my_events, ->user_id do
+  scope :my_events, ->(user_id) do
     where("finish_time between ? and ? and user_id = ?",
       Date.today.beginning_of_week, Date.today.end_of_week, user_id)
   end
-  scope :in_calendars, ->calendar_ids do
+  scope :in_calendars, ->(calendar_ids) do
     includes(:days_of_weeks, :attendees, :repeat_ons, :users, :notifications,
       :notification_events, :place)
-    .joins("LEFT JOIN places on events.place_id = places.id")
-    .where "calendar_id IN (?)", calendar_ids
+      .joins("LEFT JOIN places on events.place_id = places.id")
+      .where "calendar_id IN (?)", calendar_ids
   end
-  scope :reject_with_id, ->event_id do
+  scope :reject_with_id, ->(event_id) do
     where("id != ? AND (parent_id IS NULL \n
       OR parent_id != ?)", event_id, event_id) if event_id.present?
   end
   scope :no_repeats, ->{where repeat_type: nil}
   scope :has_exceptions, ->{where.not exception_type: nil}
-  scope :exception_edits, ->id do
+  scope :exception_edits, ->(id) do
     where "parent_id = ? AND exception_type IN (?)", id, [2, 3]
   end
-  scope :after_date, ->date{where "start_date > ?", date}
-  scope :follow_pre_nearest, ->start_date do
+  scope :after_date, ->(date){where "start_date > ?", date}
+  scope :follow_pre_nearest, ->(start_date) do
     where "start_date < ? AND
-      (exception_type = ? OR old_exception_type = ?)",start_date,
+      (exception_type = ? OR old_exception_type = ?)", start_date,
       Event.exception_types[:edit_all_follow],
       Event.exception_types[:edit_all_follow]
   end
   scope :google_events, ->{where "parent_id IS NULL AND google_event_id IS NOT NULL"}
-  scope :deleted_event_google, ->calendar_ids do
+  scope :deleted_event_google, ->(calendar_ids) do
     where "calendar_id in (?) AND google_event_id IS NOT NULL", calendar_ids
   end
   scope :not_delete_only, -> do
     where("exception_type IS NULL OR exception_type != ?", Event.exception_types[:delete_only])
   end
   scope :old_exception_type_not_null, ->{where.not old_exception_type: nil}
-  scope :in_range, ->start_date, end_date do
-    where "start_date >= ? AND finish_date <= ?",start_date, end_date
+  scope :in_range, ->(start_date, end_date) do
+    where "start_date >= ? AND finish_date <= ?", start_date, end_date
   end
   scope :old_exception_edit_all_follow, -> do
     where "old_exception_type = ?", Event.exception_types[:edit_all_follow]
   end
-  scope :of_calendar_and_in_place, ->calendar_id, name_place do
+  scope :of_calendar_and_in_place, ->(calendar_id, name_place) do
     where "calendar_id = ? AND name_place = ?", calendar_id, name_place
   end
 
@@ -115,7 +115,7 @@ class Event < ActiveRecord::Base
 
   Event.repeat_types.keys.each do |repeat_type|
     define_method "repeat_#{repeat_type}?" do
-      self.send "#{repeat_type}?"
+      send "#{repeat_type}?"
     end
   end
 
@@ -140,7 +140,7 @@ class Event < ActiveRecord::Base
       parent_id: parent_id,
       exception_time: exception_time,
       event_id: id,
-      name_place: self.place_name || name_place,
+      name_place: place_name || name_place,
       place_id: place_id
     }
   end
@@ -158,7 +158,7 @@ class Event < ActiveRecord::Base
   end
 
   def old_exception_edit_all_follow?
-    self.old_exception_type == Event.exception_types[:edit_all_follow]
+    old_exception_type == Event.exception_types[:edit_all_follow]
   end
 
   private
@@ -171,13 +171,11 @@ class Event < ActiveRecord::Base
       repeat = Settings.event.repeat_daily
     elsif repeat_type == 2
       repeat = (repeat_ons.pluck :repeat_on).compact
-    else
-      nil
-    end
+        end
   end
 
   def assign_place_name
-    self.name_place = self.place_name
+    self.name_place = place_name
   end
 
   def send_notify
@@ -224,16 +222,16 @@ class Event < ActiveRecord::Base
   end
 
   def push_event_to_google_calendar
-    EventWorker.perform_async self.id, "insert" if self.calendar_is_auto_push_to_google_calendar
+    EventWorker.perform_async id, "insert" if calendar_is_auto_push_to_google_calendar
   end
 
   def update_event_on_google_calendar
-    EventWorker.perform_async self.id, "update" if
-      self.google_calendar_id.present? and self.calendar_is_auto_push_to_google_calendar
+    EventWorker.perform_async id, "update" if
+      google_calendar_id.present? && calendar_is_auto_push_to_google_calendar
   end
 
   def delete_event_on_google_calendar
-    EventWorker.perform_async self.id, "delete" if
-      self.google_calendar_id.present? and self.calendar_is_auto_push_to_google_calendar
+    EventWorker.perform_async id, "delete" if
+      google_calendar_id.present? && calendar_is_auto_push_to_google_calendar
   end
 end

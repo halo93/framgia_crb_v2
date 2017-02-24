@@ -19,7 +19,7 @@ class Api::ParticularEventsController < Api::BaseController
     }.to_json
 
     respond_to do |format|
-      format.html {
+      format.html do
         render partial: "events/popup",
           locals: {
             user: current_user,
@@ -31,7 +31,7 @@ class Api::ParticularEventsController < Api::BaseController
             finish_date: params[:end],
             fdata: Base64.urlsafe_encode64(locals)
           }
-      }
+      end
     end
   end
 end

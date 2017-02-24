@@ -17,8 +17,8 @@ module Notifier
 
         ChatWork::Message.create(room_id: "51184775",
           body: "[To:#{attendee.chatwork_id}] #{attendee.user_name}
-          #{I18n.t("events.message.chatwork_create",
-          event: @event.title, time: time_at)}")
+          #{I18n.t('events.message.chatwork_create',
+            event: @event.title, time: time_at)}")
       end
     end
 
@@ -35,7 +35,7 @@ module Notifier
     end
 
     def chatwork_ids
-      @event.attendees.map{|attendee| attendee.chatwork_id}.join(", ")
+      @event.attendees.map(&:chatwork_id).join(", ")
     end
   end
 end

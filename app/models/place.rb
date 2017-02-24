@@ -6,7 +6,7 @@ class Place < ActiveRecord::Base
   scope :search_name, ->(name, user_id) do
     where "name LIKE '%#{name}%' AND user_id = #{user_id} OR user_id is null"
   end
-  scope :search_address, ->address {where "address LIKE '%#{address}%'"}
+  scope :search_address, ->(address){where "address LIKE '%#{address}%'"}
   scope :order_by_name, ->{order name: :asc}
   scope :order_by_address, ->{order address: :asc}
 

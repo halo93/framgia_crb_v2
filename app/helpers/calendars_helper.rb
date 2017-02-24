@@ -6,14 +6,14 @@ module CalendarsHelper
       finish_date: event.finish_date.strftime(t "events.time.formats.datetime_format")
     }.to_json
     fdata = Base64.urlsafe_encode64(locals)
-    btn = render "events/buttons/link", url: "/events/#{event.parent.id}/edit?fdata=#{fdata}",
+    render "events/buttons/link", url: "/events/#{event.parent.id}/edit?fdata=#{fdata}",
       event_title: event_title
   end
 
   def btn_via_permission user, event, fdata = nil
     user_calendar = user.user_calendars.find_by calendar: event.calendar
     btn = render "events/buttons/btn_copy", url: "/events/new?fdata=#{fdata}"
-    btn = "" if (event.calendar.is_default? || user_calendar.permission_id == 4)
+    btn = "" if event.calendar.is_default? || user_calendar.permission_id == 4
 
     if Settings.permissions_can_make_change.include? user_calendar.permission_id
       btn += render "events/buttons/btn_cancel"

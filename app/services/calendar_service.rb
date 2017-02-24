@@ -11,7 +11,7 @@ class CalendarService
   def repeat_data
     event_no_repeats = @base_events.no_repeats.not_delete_only
     event_no_repeats.each do |event|
-      @events << FullCalendar::Event.new(event, self.user, true)
+      @events << FullCalendar::Event.new(event, user, true)
     end
 
     (@base_events - event_no_repeats).each do |event|
@@ -28,7 +28,7 @@ class CalendarService
     if event.is_repeat?
       generate_repeat_from_event_parent event
     else
-      @events << FullCalendar::Event.new(event, self.user)
+      @events << FullCalendar::Event.new(event, user)
     end
 
     @events
@@ -115,7 +115,7 @@ class CalendarService
   def show_repeat_event event, step, start, function = nil
     ex_destroy_events = Array.new
     ex_update_events = Array.new
-    ex_edit_follow =  Array.new
+    ex_edit_follow = Array.new
     ex_update_follow = Array.new
 
     if @start_time_view.present?
@@ -242,7 +242,7 @@ class CalendarService
     end
 
     range_repeat_time = repeat_event - ex_destroy_events -
-      ex_update_events - ex_update_follow
+                        ex_update_events - ex_update_follow
 
     range_repeat_time.each do |repeat_date|
       event_temp = FullCalendar::Event.new event, user
@@ -251,9 +251,7 @@ class CalendarService
         @events << event_temp
       end
 
-      if function.present?
-        NotificationService.new(event, event_temp).perform
-      end
+      NotificationService.new(event, event_temp).perform if function.present?
     end
   end
 end

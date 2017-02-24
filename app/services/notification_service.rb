@@ -4,7 +4,7 @@ class NotificationService
     @event_fullcalendar = event_fullcalendar
     @delay_time = delay_time
     @notification_types = @event.notifications
-      .map{|notification| notification.notification_type.downcase.to_sym}
+                          .map{|notification| notification.notification_type.downcase.to_sym}
   end
 
   def perform

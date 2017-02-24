@@ -11,15 +11,14 @@ class ShareCalendarService
   def when_share_parent_calendar
     parent_shared = UserCalendar.where calendar_id: @calendar.id
     parent_shared.each do |share|
-      if @calendar.sub_calendars.any?
-        @calendar.sub_calendars.each do |sub_calendar|
-          user_calendar = UserCalendar.get_user_calendar share.user_id, sub_calendar.id
-          if user_calendar.any?
-            user_calendar.first.update_attributes permission_id: share.permission_id
-          else
-            UserCalendar.create(user_id: share.user_id, calendar_id: sub_calendar.id,
-              permission_id: share.permission_id, color_id: sub_calendar.color_id)
-          end
+      next unless @calendar.sub_calendars.any?
+      @calendar.sub_calendars.each do |sub_calendar|
+        user_calendar = UserCalendar.get_user_calendar share.user_id, sub_calendar.id
+        if user_calendar.any?
+          user_calendar.first.update_attributes permission_id: share.permission_id
+        else
+          UserCalendar.create(user_id: share.user_id, calendar_id: sub_calendar.id,
+            permission_id: share.permission_id, color_id: sub_calendar.color_id)
         end
       end
     end

@@ -1,6 +1,6 @@
 module FullCalendar
   class Event
-    alias :read_attribute_for_serialization :send
+    alias_method :read_attribute_for_serialization, :send
     include SharedMethods
 
     def self.model_name
@@ -15,22 +15,23 @@ module FullCalendar
       :repeat_type, :repeat_every, :user_id, :place_id, :calendar_id, :start_repeat,
       :end_repeat, :exception_time, :exception_type, to: :event, allow_nil: true
 
-    def initialize event, user, persisted = false
+    def initialize event, user, _persisted = false
       self.start_date = event.start_date
       self.finish_date = event.finish_date
       @event = event
       @user = user
-      @id, @event_id = SecureRandom.urlsafe_base64, event.id
+      @id = SecureRandom.urlsafe_base64
+      @event_id = event.id
     end
 
     def update_info repeat_date
-      start_time = self.start_date.seconds_since_midnight.seconds
-      end_time = self.finish_date.seconds_since_midnight.seconds
+      start_time = start_date.seconds_since_midnight.seconds
+      end_time = finish_date.seconds_since_midnight.seconds
 
       self.start_date = repeat_date.to_datetime + start_time
       self.finish_date = repeat_date.to_datetime + end_time
-      self.id = Base64.encode64(self.event_id.to_s + "-" + self.start_date.to_s)
-      self.persisted = @event.start_date == self.start_date
+      self.id = Base64.encode64(event_id.to_s + "-" + start_date.to_s)
+      self.persisted = @event.start_date == start_date
     end
 
     def place
@@ -62,21 +63,21 @@ module FullCalendar
     end
 
     def delete_only?
-      self.event.delete_only?
+      event.delete_only?
     end
 
     def delete_all_follow?
-      self.event.delete_all_follow?
+      event.delete_all_follow?
     end
 
     def parent
-      self.event
+      event
     end
 
     private
     def valid_permission_user_in_calendar?
-      user_calendar = self.user.user_calendars
-        .find_by(calendar_id: self.event.calendar_id)
+      user_calendar = user.user_calendars
+                      .find_by(calendar_id: event.calendar_id)
       Settings.permissions_can_make_change.include? user_calendar.permission_id
     end
   end

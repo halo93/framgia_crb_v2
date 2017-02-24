@@ -5,7 +5,7 @@ class AttendeesController < ApplicationController
     @attendee = Attendee.new attendee_params
     respond_to do |format|
       if @attendee.save!
-        format.js {flash[:success] = t "events.attendee.success"}
+        format.js{flash[:success] = t "events.attendee.success"}
       else
         format.js
       end

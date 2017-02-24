@@ -12,13 +12,11 @@ class UserOrganization < ActiveRecord::Base
 
   def send_invitation_email
     argv = {
-      user_id: self.user_id,
-      organization_id:  self.organization_id,
+      user_id: user_id,
+      organization_id:  organization_id,
       action_type: :invite_organization
     }
 
-    unless self.organization_owner_id == self.user_id
-      EmailWorker.perform_async argv
-    end
+    EmailWorker.perform_async argv unless organization_owner_id == user_id
   end
 end

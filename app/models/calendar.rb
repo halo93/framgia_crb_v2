@@ -17,24 +17,24 @@ class Calendar < ActiveRecord::Base
 
   enum status: [:no_public, :share_public, :public_hide_detail]
 
-  scope :calendars_public, ->calendars_id do
+  scope :calendars_public, ->(calendars_id) do
     where(id: calendars_id).where.not status: Calendar.statuses[:no_public]
   end
-  scope :of_user, ->user do
+  scope :of_user, ->(user) do
     select("calendars.*, uc.user_id, uc.calendar_id, uc.permission_id, \n
       uc.is_checked, uc.color_id as uc_color_id")
       .joins("INNER JOIN user_calendars as uc \n
         ON calendars.id = uc.calendar_id \n
         AND calendars.user_id = uc.user_id WHERE calendars.user_id = #{user.id}")
   end
-  scope :shared_with_user, ->user do
+  scope :shared_with_user, ->(user) do
     select("calendars.*, uc.user_id, uc.calendar_id, uc.permission_id, \n
       uc.is_checked, uc.color_id as uc_color_id")
       .joins("INNER JOIN user_calendars as uc \n
         ON uc.calendar_id = calendars.id \n
         WHERE uc.user_id = #{user.id} AND calendars.user_id <> #{user.id}")
   end
-  scope :managed_by_user, ->user do
+  scope :managed_by_user, ->(user) do
     select("calendars.*, uc.user_id, uc.calendar_id, uc.permission_id, \n
       uc.is_checked, uc.color_id as uc_color_id")
       .joins("INNER JOIN user_calendars as uc \n
@@ -53,7 +53,7 @@ class Calendar < ActiveRecord::Base
 
   private
   def create_user_calendar
-    self.user_calendars.create({user_id: self.user_id, permission_id: 1,
-      color_id: self.color_id})
+    user_calendars.create({user_id: user_id, permission_id: 1,
+                           color_id: color_id})
   end
 end

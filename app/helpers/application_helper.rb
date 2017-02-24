@@ -5,27 +5,25 @@ module ApplicationHelper
 
   def flash_class level
     case level
-      when :notice then "alert-info"
-      when :error then "alert-error"
-      when :alert then "alert-warning"
-      when :success then "alert-success"
+    when :notice then "alert-info"
+    when :error then "alert-error"
+    when :alert then "alert-warning"
+    when :success then "alert-success"
     end
   end
 
   def datetime_format object, format
-    if object.present?
-      l(object.in_time_zone(current_user.setting_timezone),
-        format: t("events.time.formats.#{format}"))
-    end
+    l(object.in_time_zone(current_user.setting_timezone),
+      format: t("events.time.formats.#{format}")) if object.present?
   end
 
   def get_avatar user
-    avatar_url =  user.avatar.nil? ? image_path("user.png") : user.avatar
+    avatar_url = user.avatar.nil? ? image_path("user.png") : user.avatar
     image_tag(avatar_url, alt: user.name, class: "img-circle")
   end
 
   def is_edit_form? param
-    param === "edit"
+    param == "edit"
   end
 
   def resource_name

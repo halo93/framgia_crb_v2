@@ -11,7 +11,7 @@ class Api::SessionsController < Api::BaseController
       user.save
       render json: {
         message: I18n.t("api.login_success"),
-        user: user.as_json(include:[:user_calendars, :shared_calendars])
+        user: user.as_json(include: [:user_calendars, :shared_calendars])
       }, status: :ok
     else
       render json: {errors: I18n.t("api.invalid_email_or_password")}, status: 422

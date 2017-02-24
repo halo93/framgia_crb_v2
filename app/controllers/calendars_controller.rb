@@ -1,7 +1,7 @@
 class CalendarsController < ApplicationController
   load_and_authorize_resource
   before_action :load_colors, except: [:show, :destroy]
-  before_action :load_users, :load_permissions,  only: [:new, :edit]
+  before_action :load_users, :load_permissions, only: [:new, :edit]
   before_action :load_user_calendar, only: [:edit, :update]
   before_action :load_place
   before_action only: [:edit, :update] do
@@ -34,7 +34,7 @@ class CalendarsController < ApplicationController
     @calendar.color = @colors.sample
     if params[:user_id].present?
       respond_to do |format|
-        format.html {
+        format.html do
           render partial: "calendars/user_share",
             locals: {
               id: nil,
@@ -45,15 +45,13 @@ class CalendarsController < ApplicationController
               color_id: @calendar.color_id,
               _destroy: false
             }
-        }
+        end
       end
     end
   end
 
   def edit
-    if params[:email]
-      @user_selected = User.find_by email: params[:email]
-    end
+    @user_selected = User.find_by email: params[:email] if params[:email]
   end
 
   def update

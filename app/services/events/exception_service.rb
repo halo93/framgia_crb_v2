@@ -6,7 +6,11 @@ module Events
       @event = event
       @event_params = params.require(:event).permit Event::ATTRIBUTES_PARAMS
       @exception_type = @event_params[:exception_type]
-      @is_drop = params[:is_drop].to_i rescue 0
+      @is_drop = begin
+                   params[:is_drop].to_i
+                 rescue
+                   0
+                 end
       @start_time_before_drag = params[:start_time_before_drag]
       @finish_time_before_drag = params[:finish_time_before_drag]
       @persisted = params[:persisted]
@@ -14,7 +18,7 @@ module Events
     end
 
     def perform
-      if @is_drop == 0 && @exception_type.in?(["edit_only", "edit_all", "edit_all_follow"])
+      if @is_drop == 0 && @exception_type.in?(%w(edit_only edit_all edit_all_follow))
         unless Event.find_with_exception @event_params[:exception_time]
           send @exception_type
         end
@@ -69,14 +73,14 @@ module Events
       @pre_start_date = @event.start_date
       @pre_finish_date = @event.finish_date
       @start_date = if start_date.is_a?(String)
-        DateTime.parse(start_date)
-      else
-        start_date
+                      DateTime.parse(start_date)
+                    else
+                      start_date
       end
       @finish_date = if finish_date.is_a?(String)
-        DateTime.parse(finish_date)
-      else
-        start_date
+                       DateTime.parse(finish_date)
+                     else
+                       start_date
       end
 
       @hour_start = @start_date.strftime("%H").to_i
@@ -98,15 +102,14 @@ module Events
       end
       @event_after_update.save
       if @event_params[:notification_events_attributes].present?
-        @event_params[:notification_events_attributes].each do |key, notify|
-          if notify["_destroy"] == "false"
-            @event_after_update.notification_events
-              .create(event_id: @event_after_update.id,
-              notification_id: notify[:notification_id])
-          end
+        @event_params[:notification_events_attributes].each do |_key, notify|
+          next unless notify["_destroy"] == "false"
+          @event_after_update.notification_events
+            .create(event_id: @event_after_update.id,
+                        notification_id: notify[:notification_id])
         end
       end
-      @event_params[:id]= @event_after_update.id
+      @event_params[:id] = @event_after_update.id
       @event_params.delete :notification_events_attributes
       @event_after_update.update_attributes @event_params.permit!
       self.new_event = @event_after_update
@@ -114,7 +117,7 @@ module Events
 
     def event_exception_pre_nearest
       events = @parent.event_exceptions
-        .follow_pre_nearest(@event_params[:start_date]).order(start_date: :desc)
+               .follow_pre_nearest(@event_params[:start_date]).order(start_date: :desc)
       events.size > 0 ? events.first : @parent
     end
 
@@ -174,9 +177,9 @@ module Events
 
     def update_attributes_event event
       @event_params[:start_date] = event.start_date
-        .change({hour: @hour_start, min: @minute_start, sec: @second_start})
+                                   .change(hour: @hour_start, min: @minute_start, sec: @second_start)
       @event_params[:finish_date] = event.finish_date
-        .change({hour: @hour_end, min: @minute_end, sec: @second_end})
+                                    .change(hour: @hour_end, min: @minute_end, sec: @second_end)
       @event_params.delete :exception_type if event.delete_only?
       @event_params.delete :start_repeat
       event.update_attributes @event_params.permit!
@@ -185,8 +188,8 @@ module Events
 
     def handle_end_repeat_of_last_event
       exception_events = @parent.event_exceptions
-        .after_date(@event_params[:start_date].to_datetime)
-        .order(start_date: :desc)
+                         .after_date(@event_params[:start_date].to_datetime)
+                         .order(start_date: :desc)
 
       events_edit_all_follow = exception_events.edit_all_follow
       delete_only = exception_events.delete_only.old_exception_edit_all_follow
@@ -202,7 +205,7 @@ module Events
 
     def handle_event_delete_only_and_old_exception_type start_repeat, end_repeat
       event_exceptions = @parent.event_exceptions.delete_only
-        .old_exception_type_not_null.in_range(start_repeat,end_repeat)
+                         .old_exception_type_not_null.in_range(start_repeat, end_repeat)
       event_exceptions.each{|event| event.update old_exception_type: nil}
     end
   end

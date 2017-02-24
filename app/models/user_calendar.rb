@@ -7,7 +7,7 @@ class UserCalendar < ActiveRecord::Base
   delegate :sub_calendars, to: :calendar, allow_nil: true
   delegate :email, :name, to: :user, prefix: true, alow_nil: true
 
-  scope :get_user_calendar, ->user_id, calendar_id do
+  scope :get_user_calendar, ->(user_id, calendar_id) do
     where("user_id = ? AND calendar_id = ?", user_id, calendar_id)
   end
 

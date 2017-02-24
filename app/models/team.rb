@@ -5,5 +5,5 @@ class Team < ActiveRecord::Base
   has_many :event_teams, dependent: :destroy
   has_many :events, through: :event_teams
 
-  validates :name, presence: true, length:{maximum: 50}
+  validates :name, presence: true, length: {maximum: 50}
 end

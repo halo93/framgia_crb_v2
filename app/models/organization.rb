@@ -25,6 +25,6 @@ class Organization < ActiveRecord::Base
 
   def add_owner_to_organization
     @user_organization = UserOrganization.create status: :accept,
-      user_id: self.owner_id, organization_id: self.id
+      user_id: owner_id, organization_id: id
   end
 end

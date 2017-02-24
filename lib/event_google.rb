@@ -48,11 +48,11 @@ class EventGoogle
 
   private
   def extract_event_title title
-    calendar_name, event_title = title.split(": ").each{|string| string.capitalize!}
+    calendar_name, event_title = title.split(": ").each(&:capitalize!)
     calendar = @calendars.find_by name: calendar_name
     calendar_id = calendar.present? ? calendar.id : @default_calendar.id
     event_title ||= title
-    return calendar_id, event_title
+    [calendar_id, event_title]
   end
 
   def set_date_time_for_event event_sync, event
@@ -67,9 +67,9 @@ class EventGoogle
       event.all_day = true
       event.start_date = event.start_repeat =
         event_sync.start.date.to_datetime.beginning_of_day
-        .strftime Settings.event.format_datetime
+      .strftime Settings.event.format_datetime
       event.finish_date = event_sync.end.date.to_datetime
-        .end_of_day.strftime Settings.event.format_datetime
+      .end_of_day.strftime Settings.event.format_datetime
       if event_sync.recurring_event_id.present?
         event.exception_type = Event.exception_types[:edit_only]
         event.exception_time = event.start_date
@@ -100,18 +100,18 @@ class EventGoogle
         event.start_repeat = event_sync.start.date
       else
         event.start_repeat = event_sync.start.dateTime
-          .strftime Settings.event.format_datetime
+        .strftime Settings.event.format_datetime
       end
       event.end_repeat = end_repeat.beginning_of_day
-        .strftime Settings.event.format_datetime
-      event.repeat_type = Event::repeat_types[repeat_type]
+      .strftime Settings.event.format_datetime
+      event.repeat_type = Event.repeat_types[repeat_type]
       event.repeat_every = every ||= 1 unless repeat_type.nil?
     else
       if event_sync.end.date.present?
         event.end_repeat = event_sync.end.date
       else
         event.end_repeat = event_sync.end.dateTime.beginning_of_day
-          .strftime Settings.event.format_datetime
+        .strftime Settings.event.format_datetime
       end
       if parent.present?
         event.repeat_type = parent.repeat_type
@@ -124,7 +124,7 @@ class EventGoogle
   def extract_info_repeat recurrence_string, event
     recurrence_string.slice! "RRULE:"
     recurrence_hash =
-      Hash[recurrence_string.split(";").collect{|string| string.strip.split("=")}]
+      Hash[recurrence_string.split(";").map{|string| string.strip.split("=")}]
     repeat_type = recurrence_hash["FREQ"].downcase
     if recurrence_hash["UNTIL"].present?
       end_repeat = recurrence_hash["UNTIL"].to_datetime
@@ -134,6 +134,6 @@ class EventGoogle
     every = recurrence_hash["INTERVAL"]
     repeat_ons = recurrence_hash["BYDAY"].split(",") unless recurrence_hash["BYDAY"].nil?
 
-    return repeat_type, end_repeat, every, repeat_ons
+    [repeat_type, end_repeat, every, repeat_ons]
   end
 end

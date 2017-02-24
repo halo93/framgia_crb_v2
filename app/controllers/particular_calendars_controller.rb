@@ -4,10 +4,8 @@ class ParticularCalendarsController < ApplicationController
 
   def show
     @status = @calendar.status
-    if user_signed_in?
-      @user_calendar = UserCalendar.find_by user_id: current_user.id,
-        calendar_id: @calendar.id
-    end
+    @user_calendar = UserCalendar.find_by user_id: current_user.id,
+      calendar_id: @calendar.id if user_signed_in?
   end
 
   def update
@@ -15,11 +13,11 @@ class ParticularCalendarsController < ApplicationController
       calendar_id: params[:id]
     respond_to do |format|
       if @user_calendar.update_attributes user_calendar_params
-        format.json {render json: @user_calendar}
+        format.json{render json: @user_calendar}
       else
-        format.json {render json: {}}
+        format.json{render json: {}}
       end
-      format.html {redirect_to root_path}
+      format.html{redirect_to root_path}
     end
   end
 

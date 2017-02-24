@@ -17,10 +17,10 @@ class RegistrationsController < Devise::RegistrationsController
           respond_with resource, location: after_sign_up_path_for(resource)
         end
       else
-        message = find_message(:"signed_up_but_#{resource.inactive_message}" )
+        message = find_message(:"signed_up_but_#{resource.inactive_message}")
         expire_data_after_sign_in!
         if request.xhr?
-         return render json: {success: true, data: {message: message}}
+          return render json: {success: true, data: {message: message}}
         else
           respond_with resource, location: after_inactive_sign_up_path_for(resource)
         end
@@ -29,7 +29,7 @@ class RegistrationsController < Devise::RegistrationsController
       clean_up_passwords resource
       messages = resource.errors.messages
       if request.xhr?
-       return render json: {success: false, data: {message: messages}}
+        return render json: {success: false, data: {message: messages}}
       else
         respond_with resource
       end

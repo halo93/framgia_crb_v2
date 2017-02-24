@@ -13,7 +13,7 @@ module Events
       return false if is_overlap? && not_allow_overlap?
 
       NotificationWorker.perform_async @event.id if status = @event.save
-      return status
+      status
     end
 
     private
@@ -22,7 +22,7 @@ module Events
     end
 
     def modify_repeat_params
-      Event::REPEAT_PARAMS.each {|attribute| @params[:event].delete attribute}
+      Event::REPEAT_PARAMS.each{|attribute| @params[:event].delete attribute}
     end
 
     def is_overlap?

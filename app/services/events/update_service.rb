@@ -10,11 +10,9 @@ module Events
 
     def perform
       modify_repeat_params if @params[:repeat].blank?
-      @params[:event] = @params[:event].merge({
-        exception_time: event_params[:start_date],
+      @params[:event] = @params[:event].merge(exception_time: event_params[:start_date],
         start_repeat: start_repeat,
-        end_repeat: end_repeat
-      })
+        end_repeat: end_repeat)
 
       if change_datetime? && is_overlap? && not_allow_overlap?
         return false

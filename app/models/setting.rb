@@ -8,7 +8,7 @@ class Setting < ActiveRecord::Base
   private
 
   def set_timezone
-    utc_offset = ActiveSupport::TimeZone.new(self.timezone_name).now.utc_offset
+    utc_offset = ActiveSupport::TimeZone.new(timezone_name).now.utc_offset
     self.timezone = utc_offset / 3600
   end
 end
